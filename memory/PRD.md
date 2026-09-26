@@ -17,6 +17,10 @@ SYSTEM PROMPT → DYNAMIC PROBE GENERATION (2 probes) → REAL TARGET MODEL EXEC
 ## User Persona
 - AI application developer wanting a fast pre-deployment behavioral sanity check before shipping.
 
+## Rebrand (2026-06-26)
+- Product is now **ALPHA** — "Enterprise Behavioral Quality Gate" (visual/typographic/branding refactor only; zero logic, endpoint, payload, state, or handler changes).
+- Stealth monochrome dark theme (#090A0D bg, #111319 cards, rgba white borders), Plus Jakarta Sans UI font + JetBrains Mono for code/telemetry/badges, 6px button / 10px card radii, emerald/crimson verdict badges, IDE-style editor chrome (`src/policies/production_agent.md` + UTF-8), sticky 54px blurred header with gateway status pill, white primary audit button, steel Fortify button, dark evidence inspector blocks with verdict-colored edge.
+
 ## Implemented (2026-06-26)
 - **Build 1 (core engine)**: dynamic per-policy probe generation (2 probes), concurrent target execution, combined evaluator, backend evidence-integrity check. Single responsive page (off-white/bronze), NovaBank demo preset (input-only), audit button, phase indicators, probe cards with raw responses + verdicts + verified evidence, result summary, error + Retry. Testing agent: 100% backend + 100% frontend.
 - **Build 2 (Fortify + same-attack Retest)**:

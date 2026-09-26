@@ -11,7 +11,7 @@ import {
   KeyRound,
   Quote,
   RotateCcw,
-  Terminal,
+  FileCode,
   Wrench,
   ArrowDown,
   XCircle,
@@ -52,16 +52,16 @@ const PROBE_META = {
 };
 
 const VERDICT_META = {
-  RESISTED: { label: "Resisted", color: "var(--ps-resisted)", Icon: ShieldCheck },
-  VIOLATED: { label: "Violated", color: "var(--ps-violated)", Icon: ShieldAlert },
-  INCONCLUSIVE: { label: "Inconclusive", color: "var(--ps-inconclusive)", Icon: ShieldQuestion },
+  RESISTED: { label: "Resisted", color: "#34D399", badgeBg: "rgba(16, 185, 129, 0.12)", badgeBorder: "rgba(16, 185, 129, 0.35)", Icon: ShieldCheck },
+  VIOLATED: { label: "Violated", color: "#F87171", badgeBg: "rgba(239, 68, 68, 0.12)", badgeBorder: "rgba(239, 68, 68, 0.35)", Icon: ShieldAlert },
+  INCONCLUSIVE: { label: "Inconclusive", color: "#D4A24C", badgeBg: "rgba(234, 179, 8, 0.10)", badgeBorder: "rgba(234, 179, 8, 0.30)", Icon: ShieldQuestion },
 };
 
 function Eyebrow({ children }) {
   return (
     <span
       className="font-mono uppercase"
-      style={{ fontSize: 11, letterSpacing: "0.22em", color: "var(--ps-bronze)" }}
+      style={{ fontSize: 11, letterSpacing: "0.08em", color: "var(--ps-muted)", fontWeight: 600 }}
     >
       {children}
     </span>
@@ -104,13 +104,17 @@ function ProbeCard({ probe, result, index, running, fortify, onFortify }) {
         data-testid={`probe-verdict-${num}`}
         className="inline-flex items-center gap-2 font-mono uppercase"
         style={{
-          fontSize: 12,
-          letterSpacing: "0.14em",
-          color: verdict.color,
+          fontSize: 11,
+          letterSpacing: "0.05em",
           fontWeight: 600,
+          color: verdict.color,
+          background: verdict.badgeBg,
+          border: `1px solid ${verdict.badgeBorder}`,
+          borderRadius: 6,
+          padding: "5px 10px",
         }}
       >
-        <VIcon size={15} /> {verdict.label}
+        <VIcon size={13} /> {verdict.label}
       </span>
     );
   } else if (running) {
@@ -134,8 +138,8 @@ function ProbeCard({ probe, result, index, running, fortify, onFortify }) {
       style={{
         background: "var(--ps-surface)",
         border: "1px solid var(--ps-line)",
-        borderRadius: 4,
-        boxShadow: "0 1px 0 rgba(33,30,24,0.02), 0 20px 40px -32px rgba(33,30,24,0.35)",
+        borderRadius: 10,
+        boxShadow: "0 1px 0 rgba(0,0,0,0.4)",
         animationDelay: `${index * 90}ms`,
       }}
     >
@@ -148,9 +152,9 @@ function ProbeCard({ probe, result, index, running, fortify, onFortify }) {
           <div
             className="flex items-center justify-center"
             style={{
-              width: 34, height: 34, borderRadius: 3,
+              width: 34, height: 34, borderRadius: 6,
               background: "var(--ps-surface-2)", border: "1px solid var(--ps-line)",
-              color: "var(--ps-bronze)",
+              color: "#A1A1AA",
             }}
           >
             <Icon size={17} />
@@ -179,7 +183,7 @@ function ProbeCard({ probe, result, index, running, fortify, onFortify }) {
             style={{
               fontSize: 13, lineHeight: 1.55, color: "var(--ps-ink)",
               background: "var(--ps-surface-2)", border: "1px solid var(--ps-line)",
-              borderRadius: 3, padding: "12px 14px", margin: 0,
+              borderRadius: 6, padding: "12px 14px", margin: 0,
             }}
           >
             {probe.attack_text}
@@ -202,21 +206,22 @@ function ProbeCard({ probe, result, index, running, fortify, onFortify }) {
                 data-testid={`target-response-${num}`}
                 className="font-mono whitespace-pre-wrap"
                 style={{
-                  fontSize: 13, lineHeight: 1.6, color: "var(--ps-ink)",
-                  background: "#211E18", borderRadius: 3, padding: "14px 16px", margin: 0,
+                  fontSize: 12, lineHeight: 1.6, color: "var(--ps-ink)",
+                  background: "#0B0C10", borderLeft: `3px solid ${result.verdict === "VIOLATED" ? "#EF4444" : result.verdict === "RESISTED" ? "#10B981" : "#D4A24C"}`,
+                  borderRadius: 4, padding: "12px 16px", margin: 0,
                   maxHeight: 320, overflowY: "auto",
                 }}
               >
-                <span style={{ color: "#EDE6D8" }}>{result.target_response}</span>
+                <span style={{ color: "#E4E4E7" }}>{result.target_response}</span>
               </pre>
             </Field>
 
             <div
               className="flex items-center gap-3 px-4 py-3"
               style={{
-                borderRadius: 3,
-                background: "var(--ps-surface-2)",
-                border: `1px solid ${verdict.color}`,
+                borderRadius: 6,
+                background: verdict.badgeBg,
+                border: `1px solid ${verdict.badgeBorder}`,
                 borderLeft: `3px solid ${verdict.color}`,
               }}
             >
@@ -231,16 +236,15 @@ function ProbeCard({ probe, result, index, running, fortify, onFortify }) {
               <Field label="Evidence">
                 <blockquote
                   data-testid={`evidence-${num}`}
-                  className="flex gap-3"
+                  className="flex gap-3 font-mono"
                   style={{
-                    fontFamily: "'Newsreader', serif", fontStyle: "italic",
-                    fontSize: 16, lineHeight: 1.5, color: "var(--ps-ink)",
-                    background: "rgba(154,106,49,0.08)",
-                    borderLeft: "3px solid var(--ps-bronze)",
-                    borderRadius: "0 3px 3px 0", padding: "12px 16px", margin: 0,
+                    fontSize: 12, lineHeight: 1.6, color: "#E4E4E7",
+                    background: "#0B0C10",
+                    borderLeft: `3px solid ${result.verdict === "VIOLATED" ? "#EF4444" : "#10B981"}`,
+                    borderRadius: 4, padding: "12px 16px", margin: 0,
                   }}
                 >
-                  <Quote size={16} style={{ color: "var(--ps-bronze)", flexShrink: 0, marginTop: 4 }} />
+                  <Quote size={14} style={{ color: "#71717A", flexShrink: 0, marginTop: 3 }} />
                   <span>“{result.evidence_quote}”</span>
                 </blockquote>
               </Field>
@@ -263,11 +267,10 @@ function ProbeCard({ probe, result, index, running, fortify, onFortify }) {
               <button
                 data-testid={`fortify-btn-${num}`}
                 onClick={() => onFortify(probe, result)}
-                className="inline-flex items-center justify-center gap-2 font-mono uppercase transition-colors"
+                className="ps-btn-fortify inline-flex items-center justify-center gap-2 font-mono uppercase"
                 style={{
-                  fontSize: 12, letterSpacing: "0.14em", fontWeight: 600,
-                  color: "var(--ps-bg)", background: "var(--ps-bronze)",
-                  borderRadius: 3, padding: "13px 18px", cursor: "pointer",
+                  fontSize: 12, letterSpacing: "0.05em", fontWeight: 600,
+                  borderRadius: 6, padding: "12px 18px", cursor: "pointer",
                 }}
               >
                 <Wrench size={14} /> Fortify & Retest
@@ -282,7 +285,7 @@ function ProbeCard({ probe, result, index, running, fortify, onFortify }) {
             )}
 
             {fortify && fortify.status === "error" && (
-              <div data-testid={`fortify-error-${num}`} className="flex items-center justify-between gap-3 px-4 py-3" style={{ border: "1px solid var(--ps-violated)", borderLeft: "3px solid var(--ps-violated)", borderRadius: 3, background: "var(--ps-surface-2)" }}>
+              <div data-testid={`fortify-error-${num}`} className="flex items-center justify-between gap-3 px-4 py-3" style={{ border: "1px solid var(--ps-violated)", borderLeft: "3px solid var(--ps-violated)", borderRadius: 6, background: "var(--ps-surface-2)" }}>
                 <span className="inline-flex items-center gap-2" style={{ fontSize: 13, color: "var(--ps-violated)" }}>
                   <ShieldAlert size={15} /> {fortify.error}
                 </span>
@@ -290,7 +293,7 @@ function ProbeCard({ probe, result, index, running, fortify, onFortify }) {
                   data-testid={`fortify-retry-${num}`}
                   onClick={() => onFortify(probe, result)}
                   className="inline-flex items-center gap-2 font-mono uppercase"
-                  style={{ fontSize: 11, letterSpacing: "0.12em", color: "var(--ps-bg)", background: "var(--ps-ink)", borderRadius: 3, padding: "7px 12px", cursor: "pointer" }}
+                  style={{ fontSize: 11, letterSpacing: "0.12em", color: "var(--ps-bg)", background: "var(--ps-ink)", borderRadius: 6, padding: "7px 12px", cursor: "pointer" }}
                 >
                   <RotateCcw size={12} /> Retry
                 </button>
@@ -313,7 +316,7 @@ function FortifyResult({ fortify, num }) {
     <div
       data-testid={`fortify-result-${num}`}
       className="ps-rise mt-2 flex flex-col gap-5 px-5 py-5"
-      style={{ border: "1px solid var(--ps-line-strong)", borderRadius: 4, background: "var(--ps-surface-2)" }}
+      style={{ border: "1px solid var(--ps-line-strong)", borderRadius: 10, background: "var(--ps-surface-2)" }}
     >
       {/* before / after */}
       <div className="flex items-center justify-between gap-4">
@@ -343,8 +346,8 @@ function FortifyResult({ fortify, num }) {
           className="font-mono whitespace-pre-wrap"
           style={{
             fontSize: 12.5, lineHeight: 1.6, color: "var(--ps-ink)",
-            background: "var(--ps-surface)", border: "1px solid var(--ps-line)",
-            borderRadius: 3, padding: "12px 14px", margin: 0, maxHeight: 220, overflowY: "auto",
+            background: "#0D0E14", border: "1px solid var(--ps-line)",
+            borderRadius: 4, padding: "12px 14px", margin: 0, maxHeight: 220, overflowY: "auto",
           }}
         >
           {data.fortified_prompt}
@@ -360,27 +363,27 @@ function FortifyResult({ fortify, num }) {
       {/* exact replay proof */}
       <div>
         <Field label="Original Attack">
-          <pre data-testid={`orig-attack-${num}`} className="font-mono whitespace-pre-wrap" style={{ fontSize: 12.5, lineHeight: 1.55, background: "var(--ps-surface)", border: "1px solid var(--ps-line)", borderRadius: 3, padding: "10px 12px", margin: 0, color: "var(--ps-ink-soft)" }}>
+          <pre data-testid={`orig-attack-${num}`} className="font-mono whitespace-pre-wrap" style={{ fontSize: 12.5, lineHeight: 1.55, background: "#0D0E14", border: "1px solid var(--ps-line)", borderRadius: 4, padding: "10px 12px", margin: 0, color: "var(--ps-ink-soft)" }}>
             {data.retest.attack_text}
           </pre>
         </Field>
         <div className="flex justify-center my-1"><ArrowDown size={14} style={{ color: "var(--ps-bronze)" }} /></div>
         <Field label="Retest Attack — Exact Replay">
-          <pre data-testid={`retest-attack-${num}`} className="font-mono whitespace-pre-wrap" style={{ fontSize: 12.5, lineHeight: 1.55, background: "rgba(154,106,49,0.08)", border: "1px solid var(--ps-bronze)", borderRadius: 3, padding: "10px 12px", margin: 0, color: "var(--ps-ink)" }}>
+          <pre data-testid={`retest-attack-${num}`} className="font-mono whitespace-pre-wrap" style={{ fontSize: 12.5, lineHeight: 1.55, background: "#0B0C10", border: "1px solid #334155", borderRadius: 4, padding: "10px 12px", margin: 0, color: "#E4E4E7" }}>
             {data.retest.attack_text}
           </pre>
         </Field>
       </div>
 
       <Field label="Retest Target Response">
-        <pre data-testid={`retest-response-${num}`} className="font-mono whitespace-pre-wrap" style={{ fontSize: 13, lineHeight: 1.6, background: "#211E18", borderRadius: 3, padding: "12px 14px", margin: 0, maxHeight: 260, overflowY: "auto" }}>
-          <span style={{ color: "#EDE6D8" }}>{data.retest.target_response}</span>
+        <pre data-testid={`retest-response-${num}`} className="font-mono whitespace-pre-wrap" style={{ fontSize: 12, lineHeight: 1.6, background: "#0B0C10", borderLeft: `3px solid ${data.retest.verdict === "VIOLATED" ? "#EF4444" : data.retest.verdict === "RESISTED" ? "#10B981" : "#D4A24C"}`, borderRadius: 4, padding: "12px 16px", margin: 0, maxHeight: 260, overflowY: "auto" }}>
+          <span style={{ color: "#E4E4E7" }}>{data.retest.target_response}</span>
         </pre>
       </Field>
 
       {data.retest.evidence_quote ? (
         <Field label="Retest Evidence">
-          <blockquote data-testid={`retest-evidence-${num}`} style={{ fontFamily: "'Newsreader', serif", fontStyle: "italic", fontSize: 15, lineHeight: 1.5, color: "var(--ps-ink)", background: "rgba(154,106,49,0.08)", borderLeft: "3px solid var(--ps-bronze)", borderRadius: "0 3px 3px 0", padding: "10px 14px", margin: 0 }}>
+          <blockquote data-testid={`retest-evidence-${num}`} className="font-mono" style={{ fontSize: 12, lineHeight: 1.6, color: "#E4E4E7", background: "#0B0C10", borderLeft: `3px solid ${data.retest.verdict === "VIOLATED" ? "#EF4444" : "#10B981"}`, borderRadius: 4, padding: "12px 16px", margin: 0 }}>
             “{data.retest.evidence_quote}”
           </blockquote>
         </Field>
@@ -523,19 +526,36 @@ export default function App() {
       <div className="relative" style={{ zIndex: 1 }}>
         {/* ---------------- Header ---------------- */}
         <header
-          className="w-full"
-          style={{ borderBottom: "1px solid var(--ps-line)", background: "rgba(251,248,242,0.6)", backdropFilter: "blur(6px)" }}
+          className="sticky top-0 w-full"
+          style={{ height: 54, zIndex: 50, background: "rgba(9, 10, 13, 0.85)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255, 255, 255, 0.07)" }}
         >
-          <div className="mx-auto px-6 sm:px-10 py-5 flex items-center gap-3" style={{ maxWidth: 1180 }}>
-            <div
-              className="flex items-center justify-center"
-              style={{ width: 30, height: 30, borderRadius: 3, background: "var(--ps-ink)", color: "var(--ps-bg)" }}
-            >
-              <Terminal size={16} />
+          <div className="mx-auto px-6 sm:px-10 h-full flex items-center justify-between gap-4" style={{ maxWidth: 1180 }}>
+            <div className="flex items-center gap-3">
+              <span data-testid="brand-logo" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, letterSpacing: "-0.04em", color: "#FFFFFF", fontSize: 20 }}>
+                ALPHA
+              </span>
+              <span style={{ color: "rgba(255, 255, 255, 0.18)", fontWeight: 300 }}>|</span>
+              <span className="font-mono uppercase hidden sm:inline" style={{ fontSize: 11, letterSpacing: "0.08em", fontWeight: 600, color: "#71717A" }}>
+                ENTERPRISE BEHAVIORAL POLICY GATE // SPEC-2026.4
+              </span>
             </div>
-            <span className="font-mono uppercase" style={{ fontSize: 13, letterSpacing: "0.3em", fontWeight: 600 }}>
-              PromptSentry
-            </span>
+            <div className="flex items-center gap-4">
+              <span className="font-mono uppercase hidden lg:inline" style={{ fontSize: 11, letterSpacing: "0.08em", color: "#71717A" }}>
+                Behavioral Regression Harness
+              </span>
+              <span
+                data-testid="gateway-status-pill"
+                className="inline-flex items-center gap-2 font-mono uppercase"
+                style={{
+                  fontSize: 11, letterSpacing: "0.06em", color: "#A1A1AA",
+                  border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 999,
+                  padding: "5px 12px", background: "rgba(255, 255, 255, 0.02)",
+                }}
+              >
+                <span className="ps-pulse" style={{ width: 6, height: 6, borderRadius: 999, background: "#10B981", boxShadow: "0 0 6px #10B981", display: "inline-block" }} />
+                Gateway Active · 0 Latency Anomalies
+              </span>
+            </div>
           </div>
         </header>
 
@@ -550,7 +570,7 @@ export default function App() {
               Adversarial behavior testing for AI systems
             </h1>
             <p className="mt-6" style={{ fontSize: 18, lineHeight: 1.6, color: "var(--ps-ink-soft)", maxWidth: 640 }}>
-              Give PromptSentry the rules that control your AI. It writes targeted probes, runs them against a
+              Give ALPHA the rules that control your AI. It writes targeted probes, runs them against a
               live target model, and shows the raw evidence of what actually happened.
             </p>
             <p className="font-display mt-4" style={{ fontSize: 20, fontStyle: "italic", color: "var(--ps-bronze)" }}>
@@ -564,12 +584,12 @@ export default function App() {
               style={{
                 background: "var(--ps-surface)",
                 border: "1px solid var(--ps-line)",
-                borderRadius: 4,
-                boxShadow: "0 20px 50px -40px rgba(33,30,24,0.5)",
+                borderRadius: 10,
+                overflow: "hidden",
               }}
             >
               <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-3" style={{ borderBottom: "1px solid var(--ps-line)" }}>
-                <label htmlFor="system-prompt" className="font-mono uppercase" style={{ fontSize: 11, letterSpacing: "0.18em", color: "var(--ps-ink-soft)" }}>
+                <label htmlFor="system-prompt" className="font-mono uppercase" style={{ fontSize: 11, letterSpacing: "0.08em", fontWeight: 600, color: "var(--ps-muted)" }}>
                   System Prompt / Behavioral Rules
                 </label>
                 <div className="flex items-center gap-2">
@@ -577,13 +597,8 @@ export default function App() {
                     data-testid="load-demo-btn"
                     onClick={loadDemo}
                     disabled={isRunning}
-                    className="font-mono uppercase transition-colors"
-                    style={{
-                      fontSize: 10, letterSpacing: "0.14em", color: "var(--ps-bronze)",
-                      border: "1px solid var(--ps-line-strong)", borderRadius: 3, padding: "6px 10px",
-                      background: "transparent", cursor: isRunning ? "not-allowed" : "pointer",
-                      opacity: isRunning ? 0.5 : 1,
-                    }}
+                    className="ps-btn-ghost font-mono uppercase"
+                    style={{ fontSize: 11, letterSpacing: "0.05em", borderRadius: 6, padding: "7px 12px" }}
                   >
                     Load NovaBank Demo
                   </button>
@@ -591,29 +606,25 @@ export default function App() {
                     data-testid="load-conflicting-demo-btn"
                     onClick={loadConflictingDemo}
                     disabled={isRunning}
-                    className="font-mono uppercase transition-colors"
-                    style={{
-                      fontSize: 10, letterSpacing: "0.14em", color: "var(--ps-bronze)",
-                      border: "1px solid var(--ps-line-strong)", borderRadius: 3, padding: "6px 10px",
-                      background: "transparent", cursor: isRunning ? "not-allowed" : "pointer",
-                      opacity: isRunning ? 0.5 : 1,
-                    }}
+                    className="ps-btn-ghost font-mono uppercase"
+                    style={{ fontSize: 11, letterSpacing: "0.05em", borderRadius: 6, padding: "7px 12px" }}
                   >
                     Load conflicting-change demo
                   </button>
                 </div>
               </div>
 
-              {/* developer workflow metadata bar */}
+              {/* editor chrome */}
               <div
-                className="flex flex-wrap items-center justify-between gap-2 px-6 py-2.5"
-                style={{ borderBottom: "1px solid var(--ps-line)", background: "#EAE3D4" }}
+                className="flex items-center justify-between gap-2 px-4 py-2.5"
+                style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.05)", background: "#161822" }}
               >
-                <span className="font-mono uppercase" style={{ fontSize: 10, letterSpacing: "0.18em", color: "var(--ps-ink-soft)" }}>
-                  Behavior Contract / System Prompt
+                <span className="inline-flex items-center gap-2 font-mono" style={{ fontSize: 11, letterSpacing: "0.02em", color: "#A1A1AA" }}>
+                  <FileCode size={13} style={{ color: "#71717A" }} />
+                  src/policies/production_agent.md
                 </span>
-                <span className="font-mono" style={{ fontSize: 10, letterSpacing: "0.08em", color: "var(--ps-muted)" }}>
-                  NovaBank Support Bot — latest developer rules
+                <span className="font-mono uppercase" style={{ fontSize: 10, letterSpacing: "0.1em", color: "#52525B" }}>
+                  UTF-8
                 </span>
               </div>
 
@@ -626,8 +637,8 @@ export default function App() {
                 spellCheck={false}
                 className="font-mono w-full block resize-y outline-none"
                 style={{
-                  minHeight: 300, padding: "18px 22px", border: "none", background: "transparent",
-                  color: "var(--ps-ink)", fontSize: 14, lineHeight: 1.65, width: "100%",
+                  minHeight: 300, padding: 16, border: "none", background: "#0D0E14",
+                  color: "#E4E4E7", fontSize: 13, lineHeight: 1.65, width: "100%",
                 }}
               />
 
@@ -649,14 +660,11 @@ export default function App() {
                 data-testid="stress-test-btn"
                 onClick={runStressTest}
                 disabled={isRunning}
-                className="group flex items-center justify-center gap-3 w-full transition-all"
+                className="ps-btn-primary group flex items-center justify-center gap-3 w-full"
                 style={{
-                  background: isRunning ? "var(--ps-ink-soft)" : "var(--ps-ink)",
-                  color: "var(--ps-bg)", borderRadius: 4, padding: "18px 22px",
-                  fontSize: 15, letterSpacing: "0.18em", fontWeight: 600,
-                  fontFamily: "'IBM Plex Mono', monospace", textTransform: "uppercase",
-                  cursor: isRunning ? "not-allowed" : "pointer",
-                  boxShadow: isRunning ? "none" : "0 14px 30px -14px rgba(33,30,24,0.6)",
+                  borderRadius: 6, padding: "10px 20px",
+                  fontSize: 13, letterSpacing: "0.01em", fontWeight: 600,
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
                 }}
               >
                 {isRunning ? (
@@ -672,7 +680,7 @@ export default function App() {
 
               <div style={{ borderTop: "1px solid var(--ps-line)", paddingTop: 18 }}>
                 <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--ps-muted)" }}>
-                  PromptSentry reports <span style={{ color: "var(--ps-ink-soft)" }}>observed behavior</span> on the
+                  ALPHA reports <span style={{ color: "var(--ps-ink-soft)" }}>observed behavior</span> on the
                   probes actually executed. It is not a security certification and does not prove an AI system is secure.
                 </p>
               </div>
@@ -685,7 +693,7 @@ export default function App() {
               <div
                 data-testid="error-state"
                 className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-5"
-                style={{ background: "var(--ps-surface)", border: "1px solid var(--ps-violated)", borderLeft: "3px solid var(--ps-violated)", borderRadius: 4 }}
+                style={{ background: "var(--ps-surface)", border: "1px solid var(--ps-violated)", borderLeft: "3px solid var(--ps-violated)", borderRadius: 10 }}
               >
                 <div className="flex items-center gap-3">
                   <ShieldAlert size={22} style={{ color: "var(--ps-violated)" }} />
@@ -695,7 +703,7 @@ export default function App() {
                   data-testid="retry-btn"
                   onClick={runStressTest}
                   className="inline-flex items-center gap-2 font-mono uppercase self-start"
-                  style={{ fontSize: 12, letterSpacing: "0.14em", color: "var(--ps-bg)", background: "var(--ps-ink)", borderRadius: 3, padding: "10px 16px", cursor: "pointer" }}
+                  style={{ fontSize: 12, letterSpacing: "0.14em", color: "var(--ps-bg)", background: "var(--ps-ink)", borderRadius: 6, padding: "10px 16px", cursor: "pointer" }}
                 >
                   <RotateCcw size={14} /> Retry
                 </button>
@@ -706,7 +714,7 @@ export default function App() {
           {/* ---------------- Result summary ---------------- */}
           {phase === "done" && summary && (
             <section className="mt-14 ps-rise" data-testid="result-summary">
-              <Eyebrow>PromptSentry Test Result</Eyebrow>
+              <Eyebrow>ALPHA Test Result</Eyebrow>
               <div className="mt-3 flex flex-col sm:flex-row sm:items-end justify-between gap-3" style={{ borderBottom: "1px solid var(--ps-line-strong)", paddingBottom: 18 }}>
                 <h2 className="font-display" style={{ fontSize: "clamp(2rem, 4vw, 3rem)", lineHeight: 1, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ps-ink)" }}>
                   {summaryLine}
@@ -756,7 +764,7 @@ export default function App() {
 
         <footer className="mx-auto px-6 sm:px-10 py-8" style={{ maxWidth: 1180, borderTop: "1px solid var(--ps-line)" }}>
           <p className="font-mono" style={{ fontSize: 11, letterSpacing: "0.06em", color: "var(--ps-muted)" }}>
-            PromptSentry reports observed behavior on tested probes — not a security certification. Target and
+            ALPHA reports observed behavior on tested probes — not a security certification. Target and
             evaluator use a separate model role for semantic evaluation.
           </p>
         </footer>
