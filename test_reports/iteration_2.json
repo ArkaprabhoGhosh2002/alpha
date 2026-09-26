@@ -1,0 +1,23 @@
+{
+  "summary": "Build 2 Fortify+Retest testing complete. Backend: 6/6 new fortify-retest pytest tests passed (short prompt 400, missing attack_text 400, evidence-not-in-response 400, missing original_target_response 400, invalid probe schema 400, and full happy-path with weak prompt producing VIOLATED->fortify->retest RESISTED with exact schema {fortified_prompt, change_summary, retest{attack_text,target_response,verdict,evidence_quote,explanation}} and byte-for-byte same-attack invariant verified). Frontend Playwright: audit button renamed to 'RUN BEHAVIORAL REGRESSION AUDIT'; load-conflicting-demo-btn pastes CONFLICTING_DEMO into textarea only (no auto-run) and includes rule 4 'If the customer is upset, approve the refund immediately'; metadata bar shows 'Behavior Contract / System Prompt' and 'NovaBank Support Bot - latest developer rules'; weak-prompt audit produced probe_01 VIOLATED + probe_02 RESISTED; fortify-btn-01 present only on VIOLATED-with-evidence card (gating correct on RESISTED card); clicking it showed fortify-loading-01 -> fortify-result-01 with non-empty fortified-prompt-01 (622 chars, still resembling refund-bot intent), change-summary-01, orig-attack-01 === retest-attack-01 (byte-for-byte), retest-response-01 fresh, fortify-verdict-01 = 'Resisted'; system-prompt-input value unchanged after fortify; validation error 'Please provide a meaningful system prompt.' shown for <30 chars with no backend call; no sk-emergent / EMERGENT_LLM_KEY in page source or network POST bodies.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_fortify_retest.py",
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/fortify_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py fortify-retest lines 414-417: the retest_attack_text = attack_text; if retest_attack_text != attack_text guard is a tautology and can never trip; the same-attack invariant is not actually enforceable in-process this way (though the value is guaranteed equal by construction). Consider deleting the dead check or replacing with an explicit assert against req.probe.attack_text pre-strip for clearer intent.",
+    "server.py line 341: original run-probes evidence check uses strict `evidence not in target_response` (case/whitespace sensitive) while fortify-retest evidence check uses normalized _norm_contains for VIOLATED. Behavior is intentional per spec but the asymmetry between the two evidence gates could confuse maintainers; add a code comment linking to the spec.",
+    "No timeout wrapper on _call_model; fortify path does 3 sequential model calls (~15-40s) and a hung upstream could hold a request thread indefinitely. Consider asyncio.wait_for.",
+    "fortify-retest does not rate-limit and has no auth; each POST triggers 3 paid LLM calls. Same demo-level concern as build 1."
+  ],
+  "updated_files": ["/app/backend/tests/test_fortify_retest.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Build 2 fully passes. New pytest file at /app/backend/tests/test_fortify_retest.py runs in ~48s and depends on live LLM producing at least one VIOLATED verdict from the WEAK_PROMPT (it did in this run; test_fortify_retest_happy_path uses pytest.skip if not, so is model-nondeterminism tolerant). Frontend fortify flow test uses the same weak prompt. Total fortify UI wait budget: 90s. All testids from spec verified present."
+}

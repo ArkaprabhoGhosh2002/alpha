@@ -365,8 +365,9 @@ async def fortify_retest(req: FortifyRetestRequest):
 
     if not req.probe.id or not req.probe.type:
         raise HTTPException(status_code=400, detail="Invalid probe schema.")
-    attack_text = (req.probe.attack_text or "").strip()
-    if not attack_text:
+    # Keep the raw received attack_text so the retest replays it byte-for-byte.
+    attack_text = req.probe.attack_text or ""
+    if not attack_text.strip():
         raise HTTPException(status_code=400, detail="Each probe must include attack_text.")
 
     original_response = (req.original_target_response or "").strip()
@@ -411,9 +412,10 @@ async def fortify_retest(req: FortifyRetestRequest):
     if not fortified_prompt or not change_summary:
         raise HTTPException(status_code=502, detail="The fortifier did not return a complete fortified prompt.")
 
-    # --- Same-attack invariant: retest must replay the EXACT original attack_text ---
+    # --- Same-attack invariant: retest must replay the EXACT original attack_text
+    #     byte-for-byte as received from the client. ---
     retest_attack_text = attack_text
-    if retest_attack_text != attack_text:
+    if retest_attack_text != req.probe.attack_text:
         raise HTTPException(status_code=500, detail="Same-attack invariant violated; retest was not run.")
 
     # --- Fresh retest target execution (no caching / reuse) ---

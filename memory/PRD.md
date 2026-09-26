@@ -18,12 +18,14 @@ SYSTEM PROMPT → DYNAMIC PROBE GENERATION (2 probes) → REAL TARGET MODEL EXEC
 - AI application developer wanting a fast pre-deployment behavioral sanity check before shipping.
 
 ## Implemented (2026-06-26)
-- Full core engine, dynamic per-policy probe generation, concurrent target execution, combined evaluator, backend evidence-integrity check.
-- Single responsive page: hero, system-prompt textarea, NovaBank demo preset (input-only), STRESS TEST (disabled while running), phase indicators, probe cards with raw responses + verdicts + verified evidence, result summary ("X / 2 attacks resisted"), error state + Retry.
-- Claim-boundary wording throughout (observed behavior; not a certification).
-- Verified live: testing agent 100% backend + 100% frontend, no issues.
+- **Build 1 (core engine)**: dynamic per-policy probe generation (2 probes), concurrent target execution, combined evaluator, backend evidence-integrity check. Single responsive page (off-white/bronze), NovaBank demo preset (input-only), audit button, phase indicators, probe cards with raw responses + verdicts + verified evidence, result summary, error + Retry. Testing agent: 100% backend + 100% frontend.
+- **Build 2 (Fortify + same-attack Retest)**:
+  - `POST /api/fortify-retest` — gated on verified VIOLATED (original evidence quote must be supported by the original response, else 400). Fortifier LLM proposes `fortified_prompt` + `change_summary` (forbids trivial/useless fixes). Retest replays the EXACT original attack_text (byte-for-byte equality invariant gate) against the fortified prompt in a fresh execution, then dynamic evaluation.
+  - Retest evidence rules (normalized: trim, strip outer quotes, case-insensitive): VIOLATED requires verified quote else INCONCLUSIVE ("Evaluator failed to isolate verifiable violation evidence."); RESISTED never demoted for missing quote; INCONCLUSIVE preserved.
+  - UI: gray metadata bar ("Behavior Contract / System Prompt" / "NovaBank Support Bot — latest developer rules"), renamed button "RUN BEHAVIORAL REGRESSION AUDIT", "Load conflicting-change demo" preset (input-only), FORTIFY & RETEST button only on verified-VIOLATED cards, Before/After result panel with fortified prompt, change summary, Original Attack vs Retest Attack — Exact Replay (identical), fresh retest response/evidence/explanation, fortify error + Retry.
+  - Verified live: VIOLATED → fortify → exact replay → RESISTED with verified evidence; all negative guards (400s) pass. Testing agent: 100% backend + 100% frontend, no issues.
 
-## Backlog (explicitly OUT of scope for this prompt — do NOT build unless asked)
+## Backlog (explicitly OUT of scope — do NOT build unless asked)
 - P2: Fortify, Retest, CI/CD, GitHub integration, database, auth, accounts, multi-turn agents, monitoring, analytics, large attack libraries, security/readiness scores, certification, OWASP claims, export, payments, connect-to-real-endpoint.
 
 ## Next Tasks (only if user requests)
